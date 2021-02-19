@@ -10,7 +10,7 @@ The mlddec packages is built on various packages that is conda-installable. Ther
 
 Once conda is available, execute the following commands to install all essential dependencies:
 ```bash
-conda install -c rdkit rdkit
+conda install -c conda-forge rdkit
 conda install -c conda-forge tqdm
 conda install scikit-learn, numpy
 conda install -c conda-forge matplotlib  #only if you want to visualise the molecule with the charges
@@ -38,10 +38,10 @@ mlddec.validate_models(models, epsilon)
 
 #To charge a molecule, run the following:
 from rdkit import Chem
-mol = Chem.MolFromSmiles("c1ccccc1")
+mol = Chem.AddHs(Chem.MolFromSmiles("c1ccccc1"))
 
 charges = mlddec.get_charges(mol, models)
-mlddec.add_charges_to_mol(mol, charges)
+mlddec.add_charges_to_mol(mol, charges=charges)
 
 #You can look at the molecule in 2D with the assigned charges with:
 mlddec.visualise_charges(mol)
