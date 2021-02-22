@@ -38,16 +38,13 @@ def validate_models(model_dict, epsilon):
     except ValueError:
         raise ValueError("No model for epsilon value of {}".format(epsilon))
 
-    print(
-        "Checking through molecule dataset, stops when discrepencies are observed..."
-    )
-    for s, c in tqdm.tqdm(list(zip(smiles, charges))):
-        if np.any(~np.isclose(get_charges(Chem.AddHs(Chem.MolFromSmiles(s)),
-                                          model_dict),
-                              c,
-                              atol=0.01)):
-            print(
-                "No close match for {}, validation terminated.".format(smiles))
+    print("Checking through molecule dataset, stops when discrepencies are observed...")
+    for s,c in tqdm.tqdm(list(zip(smiles, charges))):
+        charge_on_fly = get_charges(Chem.AddHs(Chem.MolFromSmiles(s)), model_dict)
+        discrepency = ~np.isclose(charge_on_fly , c, atol = 0.01)
+        if np.any(discrepency):
+            tmp = np.where(discrepency)[0]
+            print("No close match for {}, validation terminated. \n Atom Indices: {} \n Calculated Charges: {} \n Reference Charges: {} \n".format(s, tmp, np.array(charge_on_fly)[tmp], np.array(c)[tmp]))
             return
 
 
@@ -81,6 +78,10 @@ def load_models(epsilon=4):
                    9:"F", 15:"P", 16:"S", 17:"Cl", \
                    35:"Br", 53:"I"}
     #directory, containing the models
+    if epsilon not in [4, 78]:
+        raise ValueError("cluster_method should be one of 4 or 78 but is {}".format(epsilon))
+
+
     progress_bar = True
     try:
         import tqdm
